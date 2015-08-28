@@ -1,0 +1,4 @@
+name = "Back To Top"
+description = "Back top"
+package = "Xosotailoc modules"
+core = "7.x"

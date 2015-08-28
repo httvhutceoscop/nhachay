@@ -1,0 +1,121 @@
+<?php
+function nhachay_api_menu() {
+    $items = array();
+    $items['api'] = array(
+        'page callback' => 'api_function_routing',
+        'access arguments' => array('access content'),
+    );
+
+    $items['api/listen'] = array(
+        'page callback' => 'nhachay_api_increase_listen',
+        'access callback' => TRUE,
+        'access arguments' => array('access content'),
+    );
+
+    $items['api/download'] = array(
+        'page callback' => 'nhachay_api_download',
+        'access arguments' => array('access content'),
+    );
+    return $items;
+}
+
+function nhachay_api_preprocess_page(&$vars){
+
+}
+
+function api_function_routing()
+{
+  $method = $_SERVER['REQUEST_METHOD'];
+  switch ($method) {
+    case 'GET':
+      if (isset($_GET['data'])) {
+        $json_data = $_GET['data'];
+        $objects = json_decode($json_data);
+        switch ($objects->method) {
+          case "": break;
+          default:
+            break;
+        }
+      }
+      break;
+    default:
+      print "false";
+  }
+}
+
+function nhachay_api_download(){
+    $file = $_GET['file'];
+    header ("Content-type: octet/stream");
+    header ("Content-disposition: attachment; filename=".$file.";");
+    header("Content-Length: ".filesize($file));
+    readfile($file);
+    exit;
+}
+
+function nhachay_api_increase_listen(){
+    if (isset($_POST['from_js']) && $_POST['from_js']) {
+        if(isset($_POST['node_id'])){
+            $node = node_load($_POST['node_id']);
+            $listen_count = $node->field_listen['und'][0]['value'];
+            $listen_count++;
+            $node->field_listen['und'][0]['value'] = $listen_count;
+            node_save($node);
+
+            $response = array(
+                'result' => array(
+                    //'dl_link' => $dl_link,
+                ),
+                'message' => t('Đã tăng thêm 1 lần nghe cho node '.$node->nid.' - '.$node->title.'. Lượt nghe bây giờ là: '.$listen_count),
+            );
+            drupal_json_output($response);
+        }
+    }
+}
+
+function getNodeList ($nodeType,$start,$end, $listen_count = false){
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+      ->propertyCondition('type', $nodeType)
+      ->propertyCondition('status', 1);
+//      ->propertyOrderBy('nid',"DESC");
+
+  if($listen_count){
+    //$query->fieldCondition('field_listen', 'value', '', '!=');
+    $query->fieldOrderBy('field_listen', 'value', 'DESC');
+  }
+
+  $query->range($start,$end);
+  $entities = $query->execute();
+
+  if (!empty($entities['node'])) {
+//    $nodes = node_load(array_shift(array_keys($entities['node'])));
+    $nodes = entity_load('node', array_keys($entities['node']));
+    return $nodes;
+  }
+}
+
+function vn_str_filter ($str){
+  $unicode = array(
+      'a'=>'á|à|ả|ã|ạ|ă|ắ|ặ|ằ|ẳ|ẵ|â|ấ|ầ|ẩ|ẫ|ậ',
+      'd'=>'đ',
+      'e'=>'é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ',
+      'i'=>'í|ì|ỉ|ĩ|ị',
+      'o'=>'ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ',
+      'u'=>'ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự',
+      'y'=>'ý|ỳ|ỷ|ỹ|ỵ',
+      'A'=>'Á|À|Ả|Ã|Ạ|Ă|Ắ|Ặ|Ằ|Ẳ|Ẵ|Â|Ấ|Ầ|Ẩ|Ẫ|Ậ',
+      'D'=>'Đ',
+      'E'=>'É|È|Ẻ|Ẽ|Ẹ|Ê|Ế|Ề|Ể|Ễ|Ệ',
+      'I'=>'Í|Ì|Ỉ|Ĩ|Ị',
+      'O'=>'Ó|Ò|Ỏ|Õ|Ọ|Ô|Ố|Ồ|Ổ|Ỗ|Ộ|Ơ|Ớ|Ờ|Ở|Ỡ|Ợ',
+      'U'=>'Ú|Ù|Ủ|Ũ|Ụ|Ư|Ứ|Ừ|Ử|Ữ|Ự',
+      'Y'=>'Ý|Ỳ|Ỷ|Ỹ|Ỵ',
+  );
+
+  foreach($unicode as $nonUnicode=>$uni){
+    $str = preg_replace("/($uni)/i", $nonUnicode, $str);
+  }
+  $str = str_replace(' ','-',$str);
+  return strtolower($str);
+}
+

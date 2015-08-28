@@ -1,0 +1,4 @@
+name = Nhac Hay API
+description = API func for Nhac hay.
+package = "Nhac Hay modules"
+core = 7.x

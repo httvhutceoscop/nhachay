@@ -1,0 +1,30 @@
+name = Nhac Hay Hom Nay 24h
+description = Tap hop nhac cho hay va nhac so hay hom nay.
+
+version = VERSION
+core = 7.x
+
+stylesheets[all][] = css/style.css
+stylesheets[all][] = color/colors.css
+stylesheets[all][] = css/local.css
+
+regions[header_top_left] = Header Top Left
+regions[header_top_right] = Header Top Right
+regions[header] = Header
+regions[header] = Header
+regions[navigation] = Navigation
+regions[banner] = Banner
+regions[content] = Content
+regions[footer] = Footer
+
+settings[breadcrumb_display]= 1
+settings[scrolltop_display]= 1
+settings[responsive_respond]= 0
+settings[bootstrap_css_cdn]= 3.2.0
+settings[analytic_code]= ''
+; Information added by Drupal.org packaging script on 2014-10-21
+version = "7.x-1.1"
+core = "7.x"
+project = "nhachay_homnay"
+datestamp = "1413913868"
+
