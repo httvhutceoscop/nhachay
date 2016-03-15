@@ -1,4 +1,4 @@
-
+Test commit by SVN
 CONTENTS OF THIS FILE
 ---------------------
 
